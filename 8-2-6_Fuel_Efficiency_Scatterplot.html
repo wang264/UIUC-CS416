@@ -1,0 +1,59 @@
+
+<html>
+<script src='https://d3js.org/d3.v5.min.js'></script>
+<style> circle {fill: lightblue; stroke: black;} </style>
+<body onload='init()'>
+<svg width=300 height=300>
+</svg>
+<script>
+async function init() {
+    
+    
+    const data = await d3.csv('https://flunky.github.io/cars2017.csv');
+
+    const averageCityMPG = data.map(d => +d.AverageCityMPG);
+    var cxs= d3.scaleLog()
+    .base(10)
+    .range([0, 200])
+    .domain([10,150]);
+
+    const xs = averageCityMPG.map(value => cxs(value));
+
+    const averageHighwayMPG = data.map(d => +d.AverageHighwayMPG);
+    var cys= d3.scaleLog()
+    .base(10)
+    .range([200,0])
+    .domain([10, 150]);
+    const ys = averageHighwayMPG.map(value => cys(value));
+
+    const engineCylinders = data.map(d => +d.EngineCylinders);
+    const rs = engineCylinders.map(value => value+2);
+
+    var margin = {top: 50, right: 50, bottom: 50, left: 50};
+    d3.select('svg')
+    .append('g')
+    .attr("transform","translate(50,50)")
+    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+    .selectAll('circle')
+    .data(data)
+    .enter()
+    .append('circle')
+    .attr('cx',function(d,i) {return xs[i];})
+    .attr('cy',function(d,i) {return ys[i];})
+    .attr('r', function(d,i) {return rs[i];});
+    
+    d3.select('svg')
+      .append("g")
+      .attr("transform","translate(50,50)")
+      .call(d3.axisLeft(cys).tickValues([10,20,50,100]).tickFormat(d => `${d3.format("~s")(d)}`)); 
+
+    d3.select('svg')
+      .append("g")
+      .attr("transform","translate(50,250)")
+      .call(d3.axisBottom(cxs).tickValues([10,20,50,100]).tickFormat(d => `${d3.format("~s")(d)}`)); 
+
+
+}
+</script>
+</body>
+</html>
